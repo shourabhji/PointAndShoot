@@ -1,0 +1,27 @@
+body{
+
+    background: linear-gradient(to bottom, red,green ,blue);
+    background: url('haunted-house-7508035_1920.jpg');
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+
+}
+html {
+    cursor: url('https://icons8.com/icon/96500/accuracy'), pointer !important;
+}
+#canvas1{
+    /* background-color: blue; */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  
+}
+
+#colisionCanvas{
+    opacity: 0;
+}
