@@ -11,9 +11,12 @@ let score = 0;
 let timeToNextRaven = 0
 let ravenInterval = 1000;
 let lastTime = 0
-let gameOver = false
+var gameOver = false
 let startTime = null
 let ravens = []
+
+
+
 
 class Raven {
     constructor() {
@@ -70,7 +73,6 @@ class Raven {
         colisionctx.fillRect(this.x, this.y, this.width, this.height);
     }
 }
-
 
 let explosions = []
 class Explosions {
@@ -136,36 +138,92 @@ class Particles {
 }
 
 function drawScore() {
-    ctx.fillStyle = 'black';
-    ctx.fillText('SCORE: ' + score, 50, 75)
+    // ctx.fillStyle = 'black';6
+    // ctx.fillText('SCORE: ' + score, 50, 75)
     ctx.fillStyle = 'white';
-    ctx.fillText('SCORE: ' + score, 55, 80)
+    ctx.fillText('SCORE: ' + score, 105, 70)
+    // console.log(score)
 
 }
 
 function drawGameOver() {
     ctx.textAlign = 'center';
-
     ctx.fillStyle = 'black'
-    ctx.fillText("Game Over, Your Score IS " + score, canvas.width / 2, canvas.height / 2)
+    // ctx.fillText("Game Over, Your Score IS " + score, canvas.width / 2, canvas.height / 2)
     ctx.fillStyle = 'yellow'
     ctx.fillText("Game Over, Your Score IS " + score, canvas.width / 2 + 5, canvas.height / 2 + 5)
+    let highScore = localStorage.getItem('highscore');
+    if(!highScore || score > highScore) {
+        localStorage.setItem('highscore', score);
+    }
+    // console.log(score)
+    drawRestartButton();
+    drawHighScore(highScore)
+
 }
 
-window.addEventListener('click', function (e) {
-    ravenInterval -=10 // to make level harder after every scire
-    // console.log(ravenInterval)
-    const detectPixelColor = colisionctx.getImageData(e.x, e.y, 1, 1)
-    // console.log(detectPixelColor)
-    const pc = detectPixelColor.data
-    ravens.forEach(obj => {
-        if (obj.randomColors[0] === pc[0] && obj.randomColors[1] === pc[1] && obj.randomColors[2] === pc[2]) {
-            obj.markedForDeletion = true;
-            score++
-            explosions.push(new Explosions(obj.x, obj.y, obj.width))
-        }
-    })
+function drawHighScore(highScore) {
+    // console.log(ctx.width)
+    ctx.fillStyle = 'white';
+    ctx.fillText('HIGHSCORE: ' + highScore, canvas.width-280, 80)
+}
 
+// drawHighScore(258)
+
+
+// start button dimension 
+const startButtonWidth = 300; // Width of the button
+const startButtonHeight = 70; // Height of the button
+
+// restart Button dimension
+const restartButtonWidth = 320; // Width of the button
+const restartButtonHeight = 70; // Height of the button
+
+var isGameStart = false;
+window.addEventListener('click', function (e) {
+    if (!isGameStart) {
+        const mouseX = event.clientX - canvas.getBoundingClientRect().left;
+        const mouseY = event.clientY - canvas.getBoundingClientRect().top;
+
+        // Check if the click is inside the Start button
+        if (mouseX >= canvas.width / 2 + (-startButtonWidth / 2) && mouseX <= canvas.width / 2 + (-startButtonWidth / 2) + startButtonWidth &&
+            mouseY >= canvas.height / 2 + (-startButtonHeight / 2) && mouseY <= canvas.height / 2 + (-startButtonHeight / 2) + startButtonHeight) {
+            // console.log("reach here")
+            // Call your desired function here
+            startGame();
+            // Clear the canvas to remove the button
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            isGameStart = true
+        }
+    }
+    else {
+        if (!gameOver) {
+            ravenInterval -= 10 // to make level harder after every scire
+            // console.log(ravenInterval)
+            const detectPixelColor = colisionctx.getImageData(e.x, e.y, 1, 1)
+            // console.log(detectPixelColor)
+            const pc = detectPixelColor.data
+            ravens.forEach(obj => {
+                if (obj.randomColors[0] === pc[0] && obj.randomColors[1] === pc[1] && obj.randomColors[2] === pc[2]) {
+                    obj.markedForDeletion = true;
+                    score++
+                    explosions.push(new Explosions(obj.x, obj.y, obj.width))
+                }
+            })
+        }
+        else {
+            const mouseX = event.clientX - canvas.getBoundingClientRect().left;
+            const mouseY = event.clientY - canvas.getBoundingClientRect().top;
+            // Check if the click is inside the button
+            if (mouseX >= canvas.width / 2 + (-restartButtonWidth / 2) && mouseX <= canvas.width / 2 + (-restartButtonWidth / 2) + restartButtonWidth &&
+                mouseY >= canvas.height / 2 + 80 + (-restartButtonHeight / 2) && mouseY <= canvas.height / 2 + 80 + (-restartButtonHeight / 2) + restartButtonHeight) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    gameOver = false;
+                    console.log(gameOver + "si reallt")
+                    window.location.reload()
+            }
+        }
+    }
 })
 
 
@@ -197,6 +255,7 @@ function animate(timestamp) {
             i--
         }
     }
+
     // loop to remove expired elemets working for me
     for (let i = 0; i < explosions.length; i++) {
         const element = explosions[i];
@@ -205,6 +264,7 @@ function animate(timestamp) {
             i--
         }
     }
+
     // loop to remove expired elemets working for me
     for (let i = 0; i < particles.length; i++) {
         const element = particles[i];
@@ -228,4 +288,117 @@ function animate(timestamp) {
     if (!gameOver) requestAnimationFrame(animate);
     else drawGameOver();
 }
-animate(0)
+
+// Start Game
+function startGame() {
+    // console.log("called somrthing")
+    animate(0)
+}
+
+// Restart Button
+function drawRestartButton() {
+    // Button properties
+    const buttonX = canvas.width / 2 + (-restartButtonWidth / 2) // X coordinate of the button
+    const buttonY = canvas.height / 2 + 80 + (-restartButtonHeight / 2); // Y coordinate of the button
+    const buttonText = 'Restart the Game'; // Text to display on the button
+
+    // console.log(buttonX + " " + buttonY)
+
+    // Draw the button shape
+    ctx.fillStyle = 'Green';
+    ctx.fillRect(buttonX, buttonY, restartButtonWidth + 30, restartButtonHeight);
+
+    // Draw the button text
+    ctx.fillStyle = 'white';
+    ctx.font = '40px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(buttonText, buttonX+ 17 + restartButtonWidth / 2, buttonY + restartButtonHeight / 2);
+}
+
+// Show Start button 
+function drawStartButton() {
+    // Button properties
+    const buttonX = canvas.width / 2 + (-startButtonWidth / 2) // X coordinate of the button
+    const buttonY = canvas.height / 2 + (-startButtonHeight / 2); // Y coordinate of the button
+    const buttonText = 'Start the Game'; // Text to display on the button
+
+    // console.log(buttonX + " " + buttonY)
+
+    // Draw the button shape
+    ctx.fillStyle = 'red';
+    ctx.fillRect(buttonX, buttonY, startButtonWidth, startButtonHeight);
+
+    // Draw the button text
+    ctx.fillStyle = 'white';
+    ctx.font = '40px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(buttonText, buttonX + startButtonWidth / 2, buttonY + startButtonHeight / 2);
+}
+drawStartButton();
+
+// // Add click event listener to the canvas
+// canvas.addEventListener('click', function (event) {
+//     console.log("io")
+
+//     const mouseX = event.clientX - canvas.getBoundingClientRect().left;
+//     const mouseY = event.clientY - canvas.getBoundingClientRect().top;
+
+//     // Check if the click is inside the button
+//     if (mouseX >= canvas.width / 3.25 && mouseX <= canvas.width / 3.25 + 300 &&
+//         mouseY >= canvas.height / 2.77 && mouseY <= canvas.height / 2.77 + 70) {
+//         // Call your desired function here
+//         startGame();
+
+//         // Clear the canvas to remove the button
+//         ctx.clearRect(0, 0, canvas.width, canvas.height);
+//     }
+// });
+
+
+// Call the drawButton function to show the button
+
+// show Start button
+// function drawButton() {
+//     // Button properties
+//     const buttonX = 100; // X coordinate of the button
+//     const buttonY = 100; // Y coordinate of the button
+//     const buttonWidth = 300; // Width of the button
+//     const buttonHeight = 70; // Height of the button
+//     const buttonText = 'Start the Game'; // Text to display on the button
+
+
+//     // Draw the button shape
+//     ctx.fillStyle = 'red';
+//     // ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+//     ctx.fillRect(buttonX + canvas.width / 3.25, buttonY + canvas.height / 2.77, buttonWidth, buttonHeight);
+
+//     // Draw the button text
+//     ctx.fillStyle = 'white';
+//     ctx.font = '40px Arial';
+//     ctx.textAlign = 'center';
+//     ctx.textBaseline = 'middle';
+//     ctx.fillText(buttonText, buttonX + canvas.width / 2.2, buttonY + canvas.height / 2.5);
+
+//     // Make cursor pointer when hovering over the button
+//     // ctx.style.cursor = 'pointer';
+//     console.log("jk")
+//     // Add click event listener to the canvas
+//     canvas.addEventListener('click', function (event) {
+//         ctx.clearRect(0, 0, canvas.width, canvas.height);
+//         const mouseX = event.clientX - canvas.getBoundingClientRect().left;
+//         const mouseY = event.clientY - canvas.getBoundingClientRect().top;
+//         console.log("mouse x " + mouseX)
+//         // Check if the click is inside the button
+//         if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+//             mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
+//             // Call your desired function here
+//             startGame()
+
+//             // Clear the canvas to remove the button
+//         }
+//     });
+
+// }
+// drawButton()
