@@ -16,8 +16,7 @@ let startTime = null
 let ravens = []
 
 
-
-
+screen.orientation.lock("portrait-primary");
 class Raven {
     constructor() {
         this.spriteWidth = 271
